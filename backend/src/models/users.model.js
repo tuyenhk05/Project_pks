@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema(
     fullName: {
       type: String,
       required: [true, 'Họ và tên là bắt buộc'],
-      trim: true,
+      trim: true
     },
     email: {
       type: String,
@@ -15,51 +15,67 @@ const userSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
       trim: true,
-      match: [/^\S+@\S+\.\S+$/, 'Email không hợp lệ'],
+      match: [
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+        'Email không đúng định dạng'
+      ]
     },
     password: {
       type: String,
       required: [true, 'Mật khẩu là bắt buộc'],
       minlength: [6, 'Mật khẩu phải có ít nhất 6 ký tự'],
+      select: false
     },
     role: {
       type: String,
-      enum: Object.values(ROLES),
-      default: ROLES.STUDENT,
+      enum: {
+        values: Object.values(ROLES),
+        message: 'Vai trò {VALUE} không hợp lệ'
+      },
+      default: ROLES.STUDENT
     },
     isActive: {
       type: Boolean,
-      default: true,
-    },
+      default: true
+    }
   },
   {
-    timestamps: true,
-    toJSON: {
-      transform: (doc, ret) => {
-        delete ret.password;
-        delete ret.__v;
-        return ret;
-      },
-    },
+    timestamps: true
   }
 );
 
-// Hash password before saving if modified
+// Pre-save hook: Hash password với bcrypt (salt >= 10)
 userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+  if (!this.isModified('password')) {
+    return next();
+  }
+
   try {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
     next();
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    next(error);
   }
 });
 
-// Compare input password with stored hash
+// Instance method: So sánh password
 userSchema.methods.comparePassword = async function (candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
+  if (!this.password) {
+    throw new Error('Password field not selected');
+  }
+  return bcrypt.compare(candidatePassword, this.password);
 };
 
+// Transform toJSON: Ẩn password và __v khi trả về client
+userSchema.set('toJSON', {
+  transform: (doc, ret) => {
+    delete ret.password;
+    delete ret.__v;
+    return ret;
+  }
+});
+
 const User = mongoose.model('User', userSchema);
+
 module.exports = User;

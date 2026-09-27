@@ -6,30 +6,40 @@ const enrollmentSchema = new mongoose.Schema(
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      required: [true, 'User ID là bắt buộc'],
+      required: [true, 'User ID là bắt buộc']
     },
     courseId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Course',
-      required: [true, 'Course ID là bắt buộc'],
+      required: [true, 'Course ID là bắt buộc']
     },
     status: {
       type: String,
-      enum: Object.values(ENROLLMENT_STATUS),
-      default: ENROLLMENT_STATUS.ENROLLED,
+      enum: {
+        values: Object.values(ENROLLMENT_STATUS),
+        message: 'Trạng thái {VALUE} không hợp lệ'
+      },
+      default: ENROLLMENT_STATUS.ENROLLED
     },
     enrolledAt: {
       type: Date,
-      default: Date.now,
-    },
+      default: Date.now
+    }
   },
   {
     timestamps: true,
+    toJSON: {
+      transform: (doc, ret) => {
+        delete ret.__v;
+        return ret;
+      }
+    }
   }
 );
 
-// Compound Unique Index: Prevents duplicate enrollment for same user and course
+// Compound Unique Index: Ngăn chặn ghi danh trùng lặp ở tầng Database (Rule 06 & Skill Race Condition)
 enrollmentSchema.index({ userId: 1, courseId: 1 }, { unique: true });
 
 const Enrollment = mongoose.model('Enrollment', enrollmentSchema);
+
 module.exports = Enrollment;

@@ -6,60 +6,72 @@ const courseSchema = new mongoose.Schema(
     title: {
       type: String,
       required: [true, 'Tên khóa học là bắt buộc'],
-      trim: true,
+      trim: true
     },
     category: {
       type: String,
       required: [true, 'Danh mục khóa học là bắt buộc'],
-      trim: true,
+      trim: true
     },
     instructor: {
       type: String,
       required: [true, 'Tên giảng viên là bắt buộc'],
-      trim: true,
+      trim: true
     },
     description: {
       type: String,
-      default: '',
       trim: true,
+      default: ''
     },
     tuitionFee: {
       type: Number,
       required: [true, 'Học phí là bắt buộc'],
-      min: [0, 'Học phí không thể nhỏ hơn 0'],
+      min: [0, 'Học phí không thể âm']
     },
     capacity: {
       type: Number,
-      required: [true, 'Sức chứa (số lượng học viên tối đa) là bắt buộc'],
-      min: [1, 'Sức chứa tối thiểu phải là 1'],
+      required: [true, 'Sức chứa khóa học là bắt buộc'],
+      min: [1, 'Sức chứa tối thiểu phải là 1']
     },
     enrolledCount: {
       type: Number,
       default: 0,
-      min: [0, 'Số lượng học viên đã ghi danh không thể nhỏ hơn 0'],
+      min: [0, 'Số lượng học viên đã ghi danh không thể âm']
     },
     status: {
       type: String,
-      enum: Object.values(COURSE_STATUS),
-      default: COURSE_STATUS.ACTIVE,
-    },
+      enum: {
+        values: Object.values(COURSE_STATUS),
+        message: 'Trạng thái {VALUE} không hợp lệ'
+      },
+      default: COURSE_STATUS.ACTIVE
+    }
   },
   {
     timestamps: true,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
+    toJSON: {
+      virtuals: true,
+      transform: (doc, ret) => {
+        delete ret.__v;
+        return ret;
+      }
+    },
+    toObject: {
+      virtuals: true
+    }
   }
 );
 
-// Virtual: Available slots remaining
+// Virtual: Số chỗ còn lại
 courseSchema.virtual('availableSlots').get(function () {
   return Math.max(0, this.capacity - this.enrolledCount);
 });
 
-// Virtual: Is course full
+// Virtual: Kiểm tra đã đầy chỗ chưa
 courseSchema.virtual('isFull').get(function () {
   return this.enrolledCount >= this.capacity;
 });
 
 const Course = mongoose.model('Course', courseSchema);
+
 module.exports = Course;
