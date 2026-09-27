@@ -20,10 +20,25 @@ connectDB();
 // Security Middlewares
 app.use(helmet());
 
-const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+const clientUrl = process.env.CLIENT_URL;
 app.use(
   cors({
-    origin: [clientUrl, 'http://localhost:5173', 'http://127.0.0.1:5173'],
+    origin: (origin, callback) => {
+      // Cho phép requests không có origin (Postman, curl, server-to-server)
+      if (!origin) return callback(null, true);
+
+      // Cho phép clientUrl, local ports, và bất kỳ domain vercel.app nào
+      if (
+        origin === clientUrl ||
+        origin === 'http://localhost:5173' ||
+        origin === 'http://127.0.0.1:5173' ||
+        /\.vercel\.app$/.test(origin)
+      ) {
+        return callback(null, true);
+      }
+
+      return callback(null, true);
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
