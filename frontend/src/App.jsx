@@ -1,13 +1,32 @@
 import React from 'react';
+import { BrowserRouter } from 'react-router-dom';
+import { AuthProvider } from './store/AuthContext';
+import ErrorBoundary from './components/common/ErrorBoundary';
+import AppRoutes from './routes/AppRoutes';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white p-4">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-sky-400 mb-2">PKS Course & Enrollment Portal</h1>
-        <p className="text-slate-400">Phase 0 - Workspace Initialized</p>
-      </div>
-    </div>
+    <ErrorBoundary>
+      <AuthProvider>
+        <BrowserRouter>
+          <AppRoutes />
+          <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="light"
+          />
+        </BrowserRouter>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 
