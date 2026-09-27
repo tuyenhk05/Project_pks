@@ -4,7 +4,9 @@ const { sendError } = require('../helpers/response.helper');
 const { ROLES } = require('../configs/constants');
 
 /**
- * Authenticate JWT Bearer token middleware
+ * Security Hardening & RBAC Middleware
+ * - Authenticate JWT Bearer token
+ * - Role-Based Access Control (Admin/Staff/Student)
  */
 const authenticate = async (req, res, next) => {
   try {
