@@ -1,0 +1,336 @@
+{
+	"info": {
+		"_postman_id": "pks-course-portal-collection-2026",
+		"name": "PKS Course & Enrollment Portal API",
+		"description": "Postman Collection kiểm thử toàn bộ REST API hệ thống PKS Course Portal (Student & Admin)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "studentToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "adminToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "courseId",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "1. Authentication (Student)",
+			"item": [
+				{
+					"name": "Register Student - Success (201)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fullName\": \"Học Viên Mới\",\n  \"email\": \"newstudent@pks.edu.vn\",\n  \"password\": \"Student@123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "Register Student - Duplicate Email Error (400)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fullName\": \"Học Viên Trùng Email\",\n  \"email\": \"student@pks.edu.vn\",\n  \"password\": \"Student@123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "Login Student - Success (200)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"student@pks.edu.vn\",\n  \"password\": \"Student@123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Login Student - Wrong Password (401)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"student@pks.edu.vn\",\n  \"password\": \"WrongPassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Get Profile Me - Authorized (200)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{studentToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/me",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "auth", "me"]
+						}
+					}
+				},
+				{
+					"name": "Get Profile Me - Unauthorized (401)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/me",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "auth", "me"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Courses (Student View)",
+			"item": [
+				{
+					"name": "Get All Active Courses (200)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/courses?page=1&limit=6",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "courses"],
+							"query": [
+								{ "key": "page", "value": "1" },
+								{ "key": "limit", "value": "6" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Search Courses by Name (200)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/courses?search=React",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "courses"],
+							"query": [{ "key": "search", "value": "React" }]
+						}
+					}
+				},
+				{
+					"name": "Filter Courses by Category (200)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/courses?category=Frontend",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "courses"],
+							"query": [{ "key": "category", "value": "Frontend" }]
+						}
+					}
+				},
+				{
+					"name": "Get Course By ID (200)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/courses/{{courseId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "courses", "{{courseId}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "3. Enrollments (Student Flow)",
+			"item": [
+				{
+					"name": "Enroll Course - Success (201)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{studentToken}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"courseId\": \"{{courseId}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/enrollments",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "enrollments"]
+						}
+					}
+				},
+				{
+					"name": "Enroll Course - Duplicate Error (400)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{studentToken}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"courseId\": \"{{courseId}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/enrollments",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "enrollments"]
+						}
+					}
+				},
+				{
+					"name": "Get My Enrolled Courses (200)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{studentToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/enrollments/my-courses",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "enrollments", "my-courses"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "4. Admin Operations",
+			"item": [
+				{
+					"name": "Admin Login - Success (200)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@pks.edu.vn\",\n  \"password\": \"Admin@123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["admin", "auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Student Forbidden on Admin API (403)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{studentToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/admin/courses",
+							"host": ["{{baseUrl}}"],
+							"path": ["admin", "courses"]
+						}
+					}
+				},
+				{
+					"name": "Create Course (201)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{adminToken}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Khóa Học Next.js & Server Components\",\n  \"category\": \"Frontend\",\n  \"instructor\": \"Đặng Văn H\",\n  \"description\": \"Học Next.js App Router từ cơ bản đến nâng cao.\",\n  \"tuitionFee\": 2500000,\n  \"capacity\": 15,\n  \"status\": \"active\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/courses",
+							"host": ["{{baseUrl}}"],
+							"path": ["admin", "courses"]
+						}
+					}
+				},
+				{
+					"name": "Get All Admin Enrollments (200)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{adminToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/admin/enrollments",
+							"host": ["{{baseUrl}}"],
+							"path": ["admin", "enrollments"]
+						}
+					}
+				}
+			]
+		}
+	]
+}
